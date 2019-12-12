@@ -1,0 +1,50 @@
+From 28629a67021811887cbc5e4085a5d00aff8531d6 Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Thu, 12 Dec 2019 15:53:22 -0500
+Subject: [PATCH] Filter away annoying qnotifier warning.
+
+---
+ vispy/app/backends/_qt.py | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/vispy/app/backends/_qt.py b/vispy/app/backends/_qt.py
+index e8c8863c1..e2c9a816b 100644
+--- a/vispy/app/backends/_qt.py
++++ b/vispy/app/backends/_qt.py
+@@ -158,7 +158,6 @@ def _check_imports(lib):
+ 
+ 
+ # Properly log Qt messages
+-# Also, ignore spam about tablet input
+ def message_handler(*args):
+ 
+     if qt_lib in ("pyqt4", "pyside"):
+@@ -171,13 +170,21 @@ def message_handler(*args):
+         raise RuntimeError("Module backends._qt ",
+                            "should not be imported directly.")
+ 
+-    if msg == ("QCocoaView handleTabletEvent: This tablet device is "
+-               "unknown (received no proximity event for it). Discarding "
+-               "event."):
+-        return
+-    else:
+-        msg = msg.decode() if not isinstance(msg, string_types) else msg
+-        logger.warning(msg)
++    BLACKLIST = [
++        # Ignore spam about tablet input
++        'QCocoaView handleTabletEvent: This tablet device is unknown',
++        # Not too sure why this warning is emitted when using
++        #   Spyder + PyQt5 + Vispy
++        #   https://github.com/vispy/vispy/issues/1787
++        # In either case, it is really annoying. We should filter it away
++        'QSocketNotifier: Multiple socket notifiers for same',
++    ]
++    for item in BLACKLIST:
++        if msg.startswith(item):
++            return
++
++    msg = msg.decode() if not isinstance(msg, string_types) else msg
++    logger.warning(msg)
+ 
+ 
+ def use_shared_contexts():

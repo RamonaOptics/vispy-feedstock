@@ -10,8 +10,10 @@ source:
   sha256: 61527d5aa22ac54e2439208a6d062a5d81d685eb558a932753e6f2d6e4fd5a10
   patches:
     - ctypes_fontconfig.diff
+    - 1789-filter-qnotifier-warning.patch
 
 build:
+  skip: true  # [py==27]
   number: 0
   script: "{{ PYTHON }} -m pip install . -vv"
 
