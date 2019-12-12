@@ -1,9 +1,9 @@
 c_compiler:
 - vs2015
 channel_sources:
-- conda-forge,defaults
+- ramonaoptics,conda-forge,defaults
 channel_targets:
-- conda-forge main
+- ramonaoptics main
 numpy:
 - '1.14'
 pin_run_as_build:
